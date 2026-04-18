@@ -10,8 +10,6 @@ on:
     secrets:
       GPG_PRIVATE_KEY:
         required: true
-      REPO_DEPLOY_KEY:
-        required: true
 
 jobs:
   build-and-publish:
