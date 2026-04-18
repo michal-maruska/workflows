@@ -53,9 +53,10 @@ jobs:
       - name: Update Changelog (dch)
         run: |
           # Example: Incrementing the version
-          dch -i "Automated build for sid"
+          dch --no-auto-nmu -i "Automated build for sid"
           # --distribution unstable
-          dch -r "" # Finalize the entry
+          # Finalize the entry
+          dch -r --no-auto-nmu ""
 
       - name: Build Debian package
         run: |
