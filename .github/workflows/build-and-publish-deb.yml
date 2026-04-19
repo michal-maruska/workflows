@@ -20,12 +20,16 @@ jobs:
       image: debian:unstable-slim
 
     steps:
+      - name: install git
+        run: |
+          apt-get update
+          apt-get install -y git
+
       - name: Checkout source
         uses: actions/checkout@v4
 
       - name: Install dependencies
         run: |
-          apt-get update
           apt-get install -y devscripts equivs
 
           # 1. Create a build user
