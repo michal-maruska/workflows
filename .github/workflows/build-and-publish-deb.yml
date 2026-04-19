@@ -40,7 +40,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          apt-get install -y devscripts equivs git-buildpackage
+          apt-get install -y devscripts equivs git-buildpackage python3-typing-extensions
 
           # 1. Create a build user
           useradd -m builder
