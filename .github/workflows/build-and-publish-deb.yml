@@ -36,7 +36,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          apt-get install -y devscripts equivs
+          apt-get install -y devscripts equivs git-buildpackage
 
           # 1. Create a build user
           useradd -m builder
