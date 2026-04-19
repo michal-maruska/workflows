@@ -81,3 +81,10 @@ jobs:
 
           echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
           echo "TAG_NAME=$TAG_NAME" >> $GITHUB_OUTPUT
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+          files: |
+            /tmp/debs/*.deb
+            /tmp/debs/*.changes
+            /tmp/debs/*.dsc
