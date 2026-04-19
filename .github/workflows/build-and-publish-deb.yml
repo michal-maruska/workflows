@@ -58,7 +58,7 @@ jobs:
           # --snapshot: creates a temporary version (useful for CI)
           # --release: prepares it for a real release
           # --auto: tries to guess the next version number based on tags
-          gbp dch --release --auto --debian-branch=main
+          gbp dch --release --auto --debian-branch=main --spawn-editor=never
 
       - name: Build Debian package
         run: |
