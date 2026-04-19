@@ -89,6 +89,15 @@ jobs:
           echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
           echo "TAG_NAME=$TAG_NAME" >> $GITHUB_OUTPUT
 
+          # Configure git to push the tag
+          # git config user.name "github-actions[bot]"
+          # git config user.email "github-actions[bot]@users.noreply.github.com"
+          # # Commit the changelog change, tag it, and push
+          # git add debian/changelog
+          # git commit -m "Release $TAG_NAME"
+          # git tag "$TAG_NAME"
+          # git push origin main --tags
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
@@ -96,3 +105,4 @@ jobs:
           files: /tmp/debs/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
