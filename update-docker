@@ -1,0 +1,14 @@
+#!/usr/bin/zsh -feu
+
+ORGANIZATION="michal-maruska"
+DOCKER_IMAGE="debian-builder"
+REPO="workflows"
+
+# repository variable
+gh variable set BUILDER_IMAGE \
+  --body "ghcr.io/$ORGANIZATION/$DOCKER_IMAGE" \
+  --repo $ORGANIZATION/$REPO
+
+
+# must be inside the git directory:
+gh variable list
