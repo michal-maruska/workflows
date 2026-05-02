@@ -34,17 +34,6 @@ jobs:
           # todo: up to previous tag
           fetch-depth: 0 # Get all history for tagging
 
-      - name: Install dependencies
-        run: |
-          apt-get update
-          # 3. Install build-deps (this still needs root)
-          # We use mk-build-deps to create a dummy package of dependencies
-          mk-build-deps -ir -t "apt-get -y --no-install-recommends"
-
-          #sudo mk-build-deps -i debian/control \
-          #  --tool="apt-get -y --no-install-recommends"
-          rm -f *-build-deps_*.deb
-
       - name: Update Changelog (dch)
         env:
           DEBEMAIL: "mmaruska+deb@gmail.com"
@@ -61,6 +50,12 @@ jobs:
           su builder -c "which dch"
           su builder -c "gbp dch --release --auto --debian-branch=main --spawn-editor=never"
 
+      - name: Install dependencies
+        run: |
+          apt-get update
+          # 3. Install build-deps (this still needs root)
+          mk-build-deps --install --remove --tool="apt-get -y --no-install-recommends" debian/control
+          # rm -f *-build-deps_*.deb
 
       - name: Build Debian package
         run: |
