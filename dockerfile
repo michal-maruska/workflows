@@ -18,6 +18,8 @@ RUN apt-get update && apt-get dist-upgrade -y && \
       curl https://michal-maruska.github.io/apt-repo/maruska.asc -o /etc/apt/trusted.gpg.d/maruska.asc && \
       # apt-add-repository -y
       echo "deb [signed-by=/etc/apt/trusted.gpg.d/maruska.asc] https://michal-maruska.github.io/apt-repo sid main" > /etc/apt/sources.list.d/maruska.list  && \
+      # RESET:
+      apt-get update && \
       # clean up a bit
       apt-get purge -y curl && \
       # Now I can use my versions !!!
