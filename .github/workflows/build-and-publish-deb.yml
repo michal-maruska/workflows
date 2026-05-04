@@ -49,8 +49,8 @@ jobs:
           # --snapshot: creates a temporary version (useful for CI)
           # --release: prepares it for a real release
           # --auto: tries to guess the next version number based on tags
-          su builder -c "gbp --list-cmds"
-          su builder -c "which dch"
+          # su builder -c "gbp --list-cmds"
+          # su builder -c "which dch"
           su builder -c "gbp dch --release --auto --debian-branch=main --spawn-editor=never"
 
       - name: Install dependencies
