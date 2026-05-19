@@ -6,6 +6,10 @@ on:
         description: 'The apt repository (e.g. michal-maruska/apt-repo)'
         type: string
         default: "michal-maruska/apt-repo"
+      ref:
+        description: 'Branch, tag or SHA to checkout'
+        type: string
+        default: 'main'
     secrets:
       PAT_TOKEN:
         required: true
@@ -32,7 +36,7 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@v4
         with:
-          ref: main
+          ref: ${{ inputs.ref }}
           # mmc: full.
           # todo: up to previous tag
           fetch-depth: 0 # Get all history for tagging
@@ -51,7 +55,7 @@ jobs:
           # --auto: tries to guess the next version number based on tags
           # su builder -c "gbp --list-cmds"
           # su builder -c "which dch"
-          su builder -c "gbp dch --release --auto --debian-branch=main --spawn-editor=never"
+          su builder -c "gbp dch --release --auto --ignore-branch --spawn-editor=never"
 
       - name: Install dependencies
         run: |
