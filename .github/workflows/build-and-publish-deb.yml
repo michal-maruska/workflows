@@ -174,6 +174,7 @@ jobs:
         with:
           name: debs-amd64
           path: /tmp/debs/
+        continue-on-error: true
 
       - name: Download arm64 artifacts
         if: contains(fromJson(inputs.architectures), 'arm64')
@@ -181,6 +182,7 @@ jobs:
         with:
           name: debs-arm64
           path: /tmp/debs/
+        continue-on-error: true
 
       - name: Download arm64 artifacts
         uses: actions/download-artifact@v4
