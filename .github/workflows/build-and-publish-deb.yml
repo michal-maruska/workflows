@@ -116,6 +116,11 @@ jobs:
             echo "No arch-independent packages, skipping"
           fi
 
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: debs-indep
+          path: /tmp/debs/
 
       - name: Build Debian package
         if: contains(fromJson(inputs.architectures), 'amd64')
