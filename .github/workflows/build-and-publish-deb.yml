@@ -184,13 +184,22 @@ jobs:
           path: /tmp/debs/
         continue-on-error: true
 
-      - name: Download arm64 artifacts
+
+
+
+      - name: Download arch-indep artifacts
         uses: actions/download-artifact@v4
         with:
           name: debs-indep
           path: /tmp/debs/
         continue-on-error: true
 
+      - name: List downloaded files
+        run: |
+            echo "Files in /tmp/debs/:"
+              ls -la /tmp/debs/
+            echo "---"
+            find /tmp/debs/ -type f | sort
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
