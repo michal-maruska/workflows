@@ -166,9 +166,9 @@ jobs:
       - name: Cleanup
         if: always()
         run: |
-          : "${GITHUB_WORKSPACE:?GITHUB_WORKSPACE is not set}"
+          : "${GITHUB_WORKSPACE:?GITHUB_WORKSPACE is not set or empty}"
           set -u   # treat unset variables as errors
-          rm -rf "${GITHUB_WORKSPACE}"
+          rm -rf -- "${GITHUB_WORKSPACE}"/*
 
 
   release:
