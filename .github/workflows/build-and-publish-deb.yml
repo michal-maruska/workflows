@@ -101,10 +101,10 @@ jobs:
           mk-build-deps --install --remove --tool="apt-get -y --no-install-recommends" debian/control
           # rm -f *-build-deps_*.deb
 
+      # inside docker:
       - name: fix permissions
-        # inside docker:
         run: |
-          chown builder ../
+          chown --recursive builder:builder ../
 
       - name: Build arch-independent
         run: |
