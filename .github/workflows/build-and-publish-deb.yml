@@ -112,8 +112,20 @@ jobs:
     needs: update-changelog
     if: contains(fromJson(inputs.architectures), 'arm64')
     runs-on: [self-hosted, Linux, ARM64]
-    # dpkg-buildpackage -B  (arch-dependent only)
-    # uploads artifact: debs-arm64
+    steps:
+      # dpkg-buildpackage -B  (arch-dependent only)
+      # uploads artifact: debs-arm64
+      - name: Checkout source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+          fetch-depth: 0
+
+      - name: Install dependencies
+        run: |
+          apt-get update
+          mk-build-deps --install --remove --tool="apt-get -y --no-install-recommends" debian/control
+
 
   release:
     needs: [update-changelog, build-amd64-and-indep, build-arm64]
