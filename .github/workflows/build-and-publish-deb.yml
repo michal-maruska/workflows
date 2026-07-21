@@ -24,8 +24,11 @@ permissions:
 
 jobs:
   build:
-    # We still use an Ubuntu runner to host the Docker engine
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        arch: ${{ fromJson(inputs.architectures) }}
+    # We still use an Ubuntu runner to host the Docker engine, or ....
+    runs-on: ${{ matrix.arch == 'amd64' && 'ubuntu-latest' || fromJson('["self-hosted", "arm64"]') }}
 
     container:
       # this is what we build for: SID
