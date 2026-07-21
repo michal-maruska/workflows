@@ -10,6 +10,10 @@ on:
         description: 'Branch, tag or SHA to checkout'
         type: string
         default: 'main'
+      architectures:
+        description: 'Architectures to build for'
+        type: string
+        default: 'amd64'  # or 'amd64,arm64'
     secrets:
       PAT_TOKEN:
         required: true
