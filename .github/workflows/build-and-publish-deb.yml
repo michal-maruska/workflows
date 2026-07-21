@@ -108,9 +108,14 @@ jobs:
 
       - name: Build arch-independent
         run: |
-          su builder -c "dpkg-buildpackage -us -uc -A"
-          su builder -c "mkdir -p /tmp/debs"
-          su builder -c "dcmd mv ../*.changes /tmp/debs/ 2>/dev/null || true"
+          if grep -q "^Architecture: all" debian/control; then
+            su builder -c "dpkg-buildpackage -us -uc -A"
+            su builder -c "mkdir -p /tmp/debs"
+            su builder -c "dcmd mv ../*.changes /tmp/debs/ 2>/dev/null || true"
+          else
+            echo "No arch-independent packages, skipping"
+          fi
+
 
       - name: Build Debian package
         if: contains(fromJson(inputs.architectures), 'amd64')
