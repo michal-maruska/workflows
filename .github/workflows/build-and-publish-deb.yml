@@ -37,6 +37,13 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
     steps:
+
+      - name: Checkout source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+          fetch-depth: 0
+
       - name: Update Changelog (dch)
         env:
           DEBEMAIL: "mmaruska+deb@gmail.com"
