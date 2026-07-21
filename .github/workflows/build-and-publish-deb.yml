@@ -26,11 +26,16 @@ jobs:
 
   update-changelog:
     runs-on: ubuntu-latest
-    # gbp dch, commit changelog
-    # outputs: version string
     outputs:
       version: ${{ steps.version.outputs.version }}
       tag_name: ${{ steps.version.outputs.tag_name }}
+    container:
+      # this is what we build for: SID
+      image:  ghcr.io/${{ github.repository_owner }}/debian-builder:main
+      # for now the image is not public ...
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: Update Changelog (dch)
         env:
