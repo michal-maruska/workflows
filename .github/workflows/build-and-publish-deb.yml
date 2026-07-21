@@ -150,7 +150,7 @@ jobs:
           fetch-depth: 0
           # let's try:  we do rm -rf ourselves.... and making the repo safe?? todo!
           clean: false
-
+          set-safe-directory: false
 
       - name: debspawn build
         run: |
