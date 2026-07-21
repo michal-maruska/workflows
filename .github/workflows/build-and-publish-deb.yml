@@ -141,13 +141,14 @@ jobs:
 
       - name: debspawn build
         run: |
-          debspawn --verbose build  -a arm64 --suite sid --only arch --results-dir  ${{ github.workspace }}/../results sid .
+          debspawn --verbose build  -a arm64 --suite sid --only arch --results-dir  ${{ github.workspace }}/results sid .
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: debs-arm64
-          path: ${{ github.workspace }}/../results/*.deb
+          path: ${{ github.workspace }}/results/*
+          # .deb
 
 
 
