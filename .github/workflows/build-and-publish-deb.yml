@@ -119,24 +119,36 @@ jobs:
           su builder -c "mkdir -p /tmp/debs"
           su builder -c "dcmd mv ../*.changes /tmp/debs/ 2>/dev/null || true"
 
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: debs-amd64
+          path: /tmp/debs/
+            # ${{ github.workspace }}/../*.deb
 
   build-arm64:
     needs: update-changelog
     if: contains(fromJson(inputs.architectures), 'arm64')
     runs-on: [self-hosted, Linux, ARM64]
     steps:
+      # we invoke directly dpkg-buildpackage, no gbp ...
       # dpkg-buildpackage -B  (arch-dependent only)
-      # uploads artifact: debs-arm64
       - name: Checkout source
         uses: actions/checkout@v4
         with:
           ref: ${{ inputs.ref }}
           fetch-depth: 0
 
-      - name: Install dependencies
+      - name: debspawn build
         run: |
-          apt-get update
-          mk-build-deps --install --remove --tool="apt-get -y --no-install-recommends" debian/control
+          debspawn build  -a arm64 --suite sid --only arch --results-dir  ${{ github.workspace }}/../results sid .
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: debs-arm64
+          path: ${{ github.workspace }}/../results/*.deb
+
 
 
   release:
@@ -145,6 +157,18 @@ jobs:
     runs-on: ubuntu-latest
     # create GitHub release with all debs
     steps:
+      - name: Download amd64 artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: debs-amd64
+          path: /tmp/debs/
+
+      - name: Download arm64 artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: debs-arm64
+          path: /tmp/debs/
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
