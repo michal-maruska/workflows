@@ -23,31 +23,15 @@ permissions:
   packages: write # Optional, but good if you use GHCR
 
 jobs:
-  build:
-    strategy:
-      matrix:
-        arch: ${{ fromJson(inputs.architectures) }}
-    # We still use an Ubuntu runner to host the Docker engine, or ....
-    runs-on: ${{ matrix.arch == 'amd64' && 'ubuntu-latest' || fromJson('["self-hosted", "Linux", "ARM64"]') }}
 
-    container:
-      # this is what we build for: SID
-      image:  ghcr.io/${{ github.repository_owner }}/debian-builder:main
-      # for now the image is not public ...
-      credentials:
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
-
+  update-changelog:
+    runs-on: ubuntu-latest
+    # gbp dch, commit changelog
+    # outputs: version string
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      tag_name: ${{ steps.version.outputs.tag_name }}
     steps:
-
-      - name: Checkout source
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ inputs.ref }}
-          # mmc: full.
-          # todo: up to previous tag
-          fetch-depth: 0 # Get all history for tagging
-
       - name: Update Changelog (dch)
         env:
           DEBEMAIL: "mmaruska+deb@gmail.com"
@@ -64,22 +48,8 @@ jobs:
           # su builder -c "which dch"
           su builder -c "gbp dch --release --auto --ignore-branch --spawn-editor=never"
 
-      - name: Install dependencies
-        run: |
-          apt-get update
-          # 3. Install build-deps (this still needs root)
-          mk-build-deps --install --remove --tool="apt-get -y --no-install-recommends" debian/control
-          # rm -f *-build-deps_*.deb
-
-      - name: Build Debian package
-        run: |
-          chown builder ../
-          su builder -c "dpkg-buildpackage -us -uc"
-          su builder -c "mkdir -p /tmp/debs"
-          su builder -c "dcmd mv ../*.changes /tmp/debs/ 2>/dev/null || true"
-
       - name: Extract Version and Tag
-        id: meta
+        id: version
         run: |
           # Extract the version string (e.g., 1.2.3-1)
           VERSION=$(dpkg-parsechangelog -S Version)
@@ -87,26 +57,81 @@ jobs:
           SAFE_VERSION=$(echo "$VERSION" | sed 's/:/_epoch/g; s/~/_/g')
           DISTRIBUTION=$(dpkg-parsechangelog -S Distribution)
           TAG_NAME="$DISTRIBUTION/$SAFE_VERSION"
-          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
-          echo "TAG_NAME=$TAG_NAME" >> $GITHUB_OUTPUT
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "tag_name=$TAG_NAME" >> $GITHUB_OUTPUT
 
-          # Configure git to push the tag
-          # git config user.name "github-actions[bot]"
-          # git config user.email "github-actions[bot]@users.noreply.github.com"
-          # # Commit the changelog change, tag it, and push
-          # git add debian/changelog
-          # git commit -m "Release $TAG_NAME"
-          # git tag "$TAG_NAME"
-          # git push origin main --tags
 
+  build-amd64-and-indep:
+    needs: update-changelog
+    runs-on: ubuntu-latest
+    container:
+      # this is what we build for: SID
+      image:  ghcr.io/${{ github.repository_owner }}/debian-builder:main
+      # for now the image is not public ...
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+          # mmc: full.
+          # todo: up to previous tag
+          fetch-depth: 0 # Get all history for tagging
+
+
+      - name: Install dependencies
+        run: |
+          apt-get update
+          # 3. Install build-deps (this still needs root)
+          mk-build-deps --install --remove --tool="apt-get -y --no-install-recommends" debian/control
+          # rm -f *-build-deps_*.deb
+
+      - name: fix permissions
+        # inside docker:
+        run: |
+          chown builder ../
+
+      - name: Build arch-independent
+        run: |
+          su builder -c "dpkg-buildpackage -us -uc -A"
+          su builder -c "mkdir -p /tmp/debs"
+          su builder -c "dcmd mv ../*.changes /tmp/debs/ 2>/dev/null || true"
+
+      - name: Build Debian package
+        if: contains(fromJson(inputs.architectures), 'amd64')
+        run: |
+          su builder -c "dpkg-buildpackage -us -uc -B"
+          su builder -c "mkdir -p /tmp/debs"
+          su builder -c "dcmd mv ../*.changes /tmp/debs/ 2>/dev/null || true"
+
+
+  build-arm64:
+    needs: update-changelog
+    if: contains(fromJson(inputs.architectures), 'arm64')
+    runs-on: [self-hosted, Linux, ARM64]
+    # dpkg-buildpackage -B  (arch-dependent only)
+    # uploads artifact: debs-arm64
+
+  release:
+    needs: [update-changelog, build-amd64-and-indep, build-arm64]
+    if: always() && !cancelled()
+    # create GitHub release with all debs
+    steps:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ steps.meta.outputs.TAG_NAME }}
+          tag_name: ${{ needs.update-changelog.outputs.tag_name }}
           files: /tmp/debs/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+  notify-apt-repo:
+    needs: [update-changelog, release]
+    # trigger apt-repo dispatch
+    steps:
       - name: Notify apt-repository
         env:
           GH_TOKEN: ${{ secrets.PAT_TOKEN }}
@@ -116,6 +141,6 @@ jobs:
           --field event_type=new-deb-package \
           --field client_payload[repository]=${{ github.repository }} \
           --field client_payload[run_id]=${{ github.run_id }} \
-          --field client_payload[version]=${{ steps.meta.outputs.TAG_NAME }}
+          --field client_payload[version]=${{ needs.update-changelog.outputs.tag_name }}
 
           echo "::notice::Triggered apt-repo: https://github.com/${{ inputs.apt_repo }}/actions"
