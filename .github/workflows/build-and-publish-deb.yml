@@ -148,6 +148,9 @@ jobs:
         with:
           ref: ${{ inputs.ref }}
           fetch-depth: 0
+          # let's try:  we do rm -rf ourselves.... and making the repo safe?? todo!
+          clean: false
+
 
       - name: debspawn build
         run: |
