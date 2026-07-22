@@ -185,7 +185,11 @@ jobs:
 
   release:
     needs: [update-changelog, build-amd64-and-indep, build-arm64]
-    if: always() && !cancelled()
+    if: |
+      always()
+      && (needs.build-arm64.result == 'success' || needs.build-arm64.result == 'skipped')
+      && !cancelled()
+
     runs-on: ubuntu-latest
     # create GitHub release with all debs
     steps:
