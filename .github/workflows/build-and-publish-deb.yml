@@ -191,7 +191,7 @@ jobs:
     # create GitHub release with all debs
     steps:
       - name: Download amd64 artifacts
-        if: contains(fromJson(inputs.architectures), 'amd64')
+        if: contains(fromJson(inputs.architectures), 'amd64') && needs.update-changelog.outputs.arch_all_only != 'true'
         uses: actions/download-artifact@v4
         with:
           name: debs-amd64
@@ -199,7 +199,7 @@ jobs:
         continue-on-error: true
 
       - name: Download arm64 artifacts
-        if: contains(fromJson(inputs.architectures), 'arm64')
+        if: contains(fromJson(inputs.architectures), 'arm64') && needs.update-changelog.outputs.arch_all_only != 'true'
         uses: actions/download-artifact@v4
         with:
           name: debs-arm64
