@@ -181,8 +181,7 @@ jobs:
         run: |
           : "${GITHUB_WORKSPACE:?GITHUB_WORKSPACE is not set or empty}"
           set -u   # treat unset variables as errors
-          rm -rf -- "${GITHUB_WORKSPACE}"/*
-
+          find "${GITHUB_WORKSPACE}" -mindepth 1 -delete
 
   release:
     needs: [update-changelog, build-amd64-and-indep, build-arm64]
