@@ -29,6 +29,7 @@ jobs:
     outputs:
       version: ${{ steps.version.outputs.version }}
       tag_name: ${{ steps.version.outputs.tag_name }}
+      arch_all_only: ${{ steps.archcheck.outputs.arch_all_only }}
     container:
       # this is what we build for: SID
       image:  ghcr.io/${{ github.repository_owner }}/debian-builder:main
@@ -72,6 +73,17 @@ jobs:
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "tag_name=$TAG_NAME" >> $GITHUB_OUTPUT
 
+      - name: Determine if this package needs an arch-specific build
+        id: archcheck
+        run: |
+          archs=$(dpkg-parsechangelog -l debian/changelog >/dev/null 2>&1; \
+                  awk '/^Architecture:/{print $2}' debian/control | sort -u | tr '\n' ' ')
+          echo "archs=$archs" >> "$GITHUB_OUTPUT"
+          if [[ "$archs" == "all" ]]; then
+             echo "arch_all_only=true" >> "$GITHUB_OUTPUT"
+          else
+             echo "arch_all_only=false" >> "$GITHUB_OUTPUT"
+          fi
 
   build-amd64-and-indep:
     needs: update-changelog
@@ -153,6 +165,7 @@ jobs:
           set-safe-directory: false
 
       - name: debspawn build
+        if: needs.update-changelog.outputs.arch_all_only != 'true'
         run: |
           debspawn --verbose build  -a arm64 --suite sid --only arch --results-dir  ${{ github.workspace }}/results sid .
 
