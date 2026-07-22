@@ -105,7 +105,6 @@ jobs:
           # todo: up to previous tag
           fetch-depth: 0 # Get all history for tagging
 
-
       - name: Install dependencies
         run: |
           apt-get update
@@ -208,8 +207,6 @@ jobs:
           name: debs-arm64
           path: /tmp/debs/
         continue-on-error: true
-
-
 
 
       - name: Download arch-indep artifacts
