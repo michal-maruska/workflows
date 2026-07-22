@@ -76,13 +76,13 @@ jobs:
       - name: Determine if this package needs an arch-specific build
         id: archcheck
         run: |
-          archs=$(dpkg-parsechangelog -l debian/changelog >/dev/null 2>&1; \
-                  awk '/^Architecture:/{print $2}' debian/control | sort -u | tr '\n' ' ')
-          echo "archs=$archs" >> "$GITHUB_OUTPUT"
-          if [[ "$archs" == "all" ]]; then
-             echo "arch_all_only=true" >> "$GITHUB_OUTPUT"
+          archs=$(awk '/^Architecture:/{print $2}' debian/control | sort -u | tr '\n' ' ')
+                  archs=$(echo "$archs" | sed 's/[[:space:]]*$//')
+          echo "archs: $archs"
+          if [ "$archs" = "all" ]; then
+               echo "arch_all_only=true" >> "$GITHUB_OUTPUT"
           else
-             echo "arch_all_only=false" >> "$GITHUB_OUTPUT"
+               echo "arch_all_only=false" >> "$GITHUB_OUTPUT"
           fi
 
   build-amd64-and-indep:
