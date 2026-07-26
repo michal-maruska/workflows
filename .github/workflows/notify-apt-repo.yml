@@ -1,0 +1,43 @@
+name: Notify Apt-repo reprepro to include the released debian packages
+
+on:
+  workflow_call:
+    inputs:
+      apt_repo:
+        description: 'The apt repository (e.g. michal-maruska/apt-repo)'
+        type: string
+        default: "michal-maruska/apt-repo"
+      release:
+        description: 'version string'
+        type: string
+        # default: 'main'
+    secrets:
+      PAT_TOKEN:
+        required: true
+
+permissions:
+  contents: write
+  packages: write # Optional, but good if you use GHCR
+
+jobs:
+
+  notify-apt-repo:
+    runs-on: ubuntu-latest
+#    if: |
+#      always()
+#      && needs.update-changelog.result == 'success'
+
+    # trigger apt-repo dispatch
+    steps:
+      - name: Notify apt-repository
+        env:
+          GH_TOKEN: ${{ secrets.PAT_TOKEN }}
+        run: |
+          gh api repos/${{ inputs.apt_repo }}/dispatches \
+          --method POST \
+          --field event_type=new-deb-package \
+          --field client_payload[repository]=${{ github.repository }} \
+          --field client_payload[run_id]=${{ github.run_id }} \
+          --field client_payload[version]=${{ inputs.release }}
+
+          echo "::notice::Triggered apt-repo: https://github.com/${{ inputs.apt_repo }}/actions"
