@@ -21,7 +21,7 @@ permissions:
   packages: write # Optional, but good if you use GHCR
 
 jobs:
-  release:
+  create-release:
     runs-on: ubuntu-latest
 
     steps:
