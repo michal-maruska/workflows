@@ -43,11 +43,12 @@ jobs:
           cache-to: type=registry,ref=${{ env.IMAGE}}:buildcache,mode=max
 
 
- rebuild-debspawn-arm64:
-   strategy:
-     matrix:
-       runner: [raspberrypi]       # , orangepi5
-       runs-on: ${{ matrix.runner }}
-       steps:
-         - name: Update debspawn sid chroot
-           run: sudo debspawn update sid
+  rebuild-debspawn-arm64:
+    strategy:
+      matrix:
+        runner: [raspberrypi]       # , orangepi5
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - name: Update debspawn sid chroot
+        run: |
+          sudo debspawn update sid
