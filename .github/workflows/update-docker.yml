@@ -46,7 +46,7 @@ jobs:
   rebuild-debspawn-arm64:
     strategy:
       matrix:
-        runner: [raspberrypi]       # , orangepi5
+        runner: [raspberrypi, orangepi5]
     runs-on: ${{ matrix.runner }}
     steps:
       - name: Update debspawn sid chroot
