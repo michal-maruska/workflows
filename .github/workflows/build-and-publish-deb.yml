@@ -136,9 +136,12 @@ jobs:
       - name: Build Debian package
         if: contains(fromJson(inputs.architectures), 'amd64')
         run: |
-          su builder -c "dpkg-buildpackage -us -uc -B"
-          su builder -c "mkdir -p /tmp/debs"
-          su builder -c "dcmd mv ../*.changes /tmp/debs/ 2>/dev/null || true"
+          if grep "^Architecture: " debian/control| grep -v ": all";
+          then
+            su builder -c "dpkg-buildpackage -us -uc -B"
+            su builder -c "mkdir -p /tmp/debs"
+            su builder -c "dcmd mv ../*.changes /tmp/debs/ 2>/dev/null || true"
+          fi
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
