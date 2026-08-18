@@ -40,7 +40,7 @@ jobs:
     steps:
 
       - name: Checkout source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: ${{ inputs.ref }}
           fetch-depth: 0
@@ -98,7 +98,7 @@ jobs:
 
     steps:
       - name: Checkout source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: ${{ inputs.ref }}
           # mmc: full.
@@ -160,7 +160,7 @@ jobs:
       # we invoke directly dpkg-buildpackage, no gbp ...
       # dpkg-buildpackage -B  (arch-dependent only)
       - name: Checkout source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: ${{ inputs.ref }}
           fetch-depth: 0
@@ -229,7 +229,7 @@ jobs:
             find /tmp/debs/ -type f | sort
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ needs.update-changelog.outputs.tag_name }}
           files: /tmp/debs/*
