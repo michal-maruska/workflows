@@ -130,7 +130,7 @@ jobs:
           fi
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: debs-indep
           path: /tmp/debs/
@@ -146,7 +146,7 @@ jobs:
           fi
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: debs-amd64
           path: /tmp/debs/
@@ -174,7 +174,7 @@ jobs:
           debspawn --verbose build  -a arm64 --suite sid --only arch --results-dir  ${{ github.workspace }}/results sid .
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: debs-arm64
           path: ${{ github.workspace }}/results/*
